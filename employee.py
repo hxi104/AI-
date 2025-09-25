@@ -25,7 +25,7 @@ def tester():
     
     emp1 = Employee("Harry", 2000)
        
-    emp2 = Employee("Arthur", 1000)
+    emp2 = Employee("Charlie", 1000)
         
     print(emp1)
     print(emp2)
