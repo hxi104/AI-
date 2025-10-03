@@ -8,14 +8,23 @@ Created on Tue Sep 23 14:16:28 2025
 def square(i):
     return i**2
 
-squares = []
-i = 1
-for i in range (100):
-    squares.append(square(i))
-    i += 1
-    
-print(squares)
+squares_list = [square(i) for i in range(1,101)]
+#for value in squares_list:
+    #print(value)
+print("example 2")
+def next_square():
+    i = 1
+    while True:
+        yield i ** 2
+        i += 1 
+        
+gen = next_square()
 
-x = 1
-for x in range(squares):
+for _ in range(100):
+    print(next(gen))
+    
+    #optional
+    import sys
+print("list memory usage:",sys.getsizeof(squares_list),"bytes")
+print("generator memory usage:",sys.getsizeof(next_square()),"bytes")
     
