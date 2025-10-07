@@ -85,6 +85,7 @@ class State:
             result = fn()
             if result is not None:
                 yield result
+                print(" ")
                 
 
     
@@ -100,6 +101,7 @@ def tester():
     
     grid2 = [[1,2,3],[4,5,0],[6,7,8]]
     sa = State(grid2)
+   
     for next_state in sa.move():
         print(next_state)
     
