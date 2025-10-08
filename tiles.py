@@ -80,12 +80,29 @@ class State:
         return None
     
     def move(self):
-        actions = [self.moveDown,self.moveUp,self.moveRight,self.moveLeft]
-        for fn in actions:
+        actions = [
+        ("down", self.moveDown),
+        ("up", self.moveUp),
+        ("left", self.moveLeft),
+        ("right", self.moveRight)
+    ]
+        for name,fn in actions:
             result = fn()
             if result is not None:
-                yield result
+                yield name, result
                 print(" ")
+                
+    def apply_move(state, move):
+        if move == "up":
+            return state.moveUp()
+        elif move == "down":
+            return state.moveDown()
+        elif move == "left":
+            return state.moveLeft()
+        elif move == "right":
+            return state.moveRight()
+        else:
+            return None
                 
 
     
@@ -93,16 +110,19 @@ def tester():
     grid = [[1,2,3],[4,0,5],[6,7,8]]
     st = State(grid)
     
-    
-    for next_state in st.move():
+    print(st)
+    for move,next_state in st.move():
+        print(move)
         print(next_state)
+        
         
     print("second test")
     
     grid2 = [[1,2,3],[4,5,0],[6,7,8]]
     sa = State(grid2)
    
-    for next_state in sa.move():
+    for move,next_state in sa.move():
+        print(move)
         print(next_state)
     
 
