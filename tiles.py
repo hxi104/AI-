@@ -39,7 +39,7 @@ class State:
         return '\n'.join(rows)
     
     def clone(self):
-        cPos = self.pos
+        cPos = self.pos[0],self.pos[1]
         cGrid = [[self.grid[i][j] for j in range(self.size)] for i in range(self.size)]
         return State(cGrid,cPos)
         
@@ -85,26 +85,56 @@ class State:
         ("up", self.moveUp),
         ("left", self.moveLeft),
         ("right", self.moveRight)
-    ]
+        ]
         for name,fn in actions:
             result = fn()
             if result is not None:
                 yield name, result
-                print(" ")
                 
-    def apply_move(state, move):
-        if move == "up":
-            return state.moveUp()
-        elif move == "down":
-            return state.moveDown()
-        elif move == "left":
-            return state.moveLeft()
-        elif move == "right":
-            return state.moveRight()
-        else:
-            return None
                 
-
+    def tPos(self,tile):
+        '''
+        pram: tile - int
+        return: tuple (i,j) for the position of the tile; None if not found
+        '''
+        for i in range(self.size):
+            for j in range(self.size):
+                if self.grid[i][j] == tile:
+                    return (i,j)
+        return None
+    def __eq__(self,other):
+        '''
+        pram: other - State
+        return: True if the states are equal, False otherwise
+        '''
+        if (self.pos[0]!=other.pos[0] or self.pos[1]!=other.pos[1]):
+            return False
+        for i in range(self.size):
+            for j in range(self.size):
+                if self.grid[i][j] != other.grid[i][j]:
+                    return False
+        return True
+    
+    def __hash__(self):
+        """
+        Allow State objects to be used as keys in dictionaries or sets.
+        """
+        # We need an immutable representation of the grid for hashing.
+        # A string is a simple and effective way to do this.
+        return hash(str(self.grid))
+    
+    def mDist(self,other):
+        '''
+        pram: other - State
+        return: the Manhattan distance between the two states
+        '''
+        result=0
+        for t in range(1,self.size**2):
+            p1 = self.tPos(t)
+            p2 = other.tPos(t)
+            if p1 != None and p2 != None:
+                result+=abs(p1[0]-p2[0])+abs(p1[1]-p2[1])
+        return result
     
 def tester():
     grid = [[1,2,3],[4,0,5],[6,7,8]]
