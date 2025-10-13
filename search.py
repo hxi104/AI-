@@ -43,10 +43,6 @@ def dfs_r(start,end):
     return recurse(start)
     
     
-    
-    
-    
-    
 if __name__ == "__main__":
     start_grid = [[1,2,3],
                   [4,0,5],
