@@ -8,6 +8,7 @@ Created on Wed Oct  8 12:50:19 2025
 from tiles import State
 from heapq import heappush, heappop
 import itertools
+import timeit
 
 def dfs(start,end):
     stack = [(start,[])] #starting state and empty move list
@@ -23,6 +24,7 @@ def dfs(start,end):
             if str(next_state.grid) not in visited:
                 stack.append((next_state,path+[move]))
     return None
+
 def dfs_r(start, goal, visited=None, path=None):
     if visited is None:
         visited = set()
@@ -89,8 +91,85 @@ def aStar(start, end):
 
     return None
     
+def _depth_limited_dfs(start,end,limit,path,path_set):
+    if start.grid == end.grid:
+        return path
+    if limit == 0:
+        return None
+    for move, new_state in start.move():
+        new_key = str(new_state.grid)
+        if new_key in path_set:
+            continue
+        path_set.add(new_key)
+        result = _depth_limited_dfs(new_state, end, limit-1, path+[move], path_set)
+        if result is not None:
+            return result
+        path_set.remove(new_key)
+    return None
+
+def id_dfs(start, goal, max_depth=50):
+    if start.grid == goal.grid:
+        return []
+    for depth in range(max_depth + 1):
+        start_key = tuple(tuple(row) for row in start.grid)
+        path_set = {start_key}
+        result = _depth_limited_dfs(start, goal, depth, [], path_set)
+        if result is not None:
+            return result
+    return None
 
 
+def compare_algorithms(start, end, number=5):
+    """
+    Compare performance of DFS, Recursive DFS, ID-DFS, and A* algorithms
+    using timeit for more accurate timing.
+
+    Args:
+        start, end: State instances for the puzzle.
+        number: how many times each algorithm runs (default 5).
+    """
+
+    algorithms = [
+        ("DFS (iterative)", dfs),
+        ("DFS (recursive)", dfs_r),
+        ("ID-DFS", id_dfs),
+        ("A*", aStar)
+    ]
+
+    print("\n=== Comparing Search Algorithms ===")
+    print(f"Start: {start.grid}")
+    print(f"Goal : {end.grid}")
+    print("-----------------------------------------")
+    print(f"{'Algorithm':<20} {'Found':<8} {'PathLen':<8} {'Avg Time (s)':<12}")
+    print("-----------------------------------------")
+
+    for name, func in algorithms:
+        try:
+            # Define a wrapper so timeit can call the algorithm
+            def run_func():
+                return func(start, end)
+
+            # Measure total time for `number` runs
+            total_time = timeit.timeit(run_func, number=number)
+            avg_time = total_time / number
+
+            # Run once more to capture actual output (not timed)
+            path = func(start, end)
+            found = "Yes" if path is not None else "No"
+            length = len(path) if path is not None else "-"
+
+            print(f"{name:<20} {found:<8} {length!s:<8} {avg_time:<12.6f}")
+
+        except Exception as e:
+            print(f"{name:<20} Error: {str(e)}")
+
+    print("-----------------------------------------\n")
+
+    
+    
+    
+    
+    
 
 if __name__ == "__main__":
     start_grid = [[1,2,3],
@@ -98,24 +177,14 @@ if __name__ == "__main__":
                   [6,7,8]]
     
     goal_grid  = [[1,2,3],
-                  [0,4,5],
-                  [6,7,8]]
+                  [4,5,6],
+                  [7,8,0]]
 
     start = State(start_grid)
     goal = State(goal_grid)
     
     
-    print("=== DFS ===")
-    path = dfs(start, goal)
-    print("DFS path:", path)
-    
-    print("\n=== Recursive DFS ===")
-    path_r = dfs_r(start, goal)
-    print("Recursive DFS path:", path_r)
-    
-    print("\n=== A* ===")
-    path_a = aStar(start, goal)
-    print("A* path:", path_a)
+    compare_algorithms(start, goal)
     
 
     
